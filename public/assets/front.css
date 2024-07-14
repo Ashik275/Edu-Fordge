@@ -1,0 +1,56 @@
+/* Reset default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Navigation Menu Styles */
+nav {
+  background-color: #333;
+  padding: 20px;
+}
+
+nav ul {
+  list-style-type: none;
+}
+
+nav ul li {
+  display: inline;
+  margin-right: 20px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+/* Section Styles */
+section {
+  padding: 50px;
+}
+
+h1, h2 {
+  margin-bottom: 20px;
+}
+.exploreColor {
+  background-color: #f4fafd;
+}
+
+@media only screen and (max-width: 688px) {
+  .sliderHeader {
+    font-size: 3vh;
+  }
+
+  .sliderPara {
+    font-size: 2vh;
+  }
+
+  .sliderBtn {
+    font-size: 3vh;
+  }
+
+  .height {
+    height: 50%;
+  }
+}
