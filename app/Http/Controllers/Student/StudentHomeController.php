@@ -9,6 +9,7 @@ use App\Models\Materials;
 use App\Models\Meeting;
 use App\Models\Quiz;
 use App\Models\Result;
+use App\Models\Score;
 use App\Models\Subjects;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -55,31 +56,82 @@ class StudentHomeController extends Controller
     public function currentexam()
     {
         $student = Auth::guard('student')->user();
-        $get_exams = Exam::where('class_id', $student->class_id)->get();
-        // $quizes = Quiz::where('exam_id', $get_exams->id)->latest()->get();
-        // Initialize an array to store quizzes
-        $quizzes = [];
-
-        // Iterate over each exam to fetch quizzes related to it
-        foreach ($get_exams as $exam) {
-            $quiz = Quiz::where('exam_id', $exam->id)->latest()->get();
-            // Append quizzes to the result array
-            foreach ($quiz as $q) {
-                $quizzes[] = $q;
-            }
-        }
-        // Check if results exist for the current student and exam
-        $results = Result::where('student_id', $student->id)
-            ->whereIn('exam_id', $get_exams->pluck('id'))
-            ->pluck('selected_answer', 'question_id')
-            ->toArray();
-        return view('student.currentexam.currentexam', [
-            'quizzes' => $quizzes,
-            'student_id' => $student->id,
-            'exam_id' => $exam->id,
-            'results' => $results,
+        $startOfToday = Carbon::today()->startOfDay();
+        $endOfToday = Carbon::today()->endOfDay();
+        
+        // Retrieve exams scheduled for today
+        $get_exams = Exam::where('class_id', $student->class_id)
+            ->whereBetween('exam_date', [$startOfToday, $endOfToday])
+            ->get();
+        return view('student.examcurrent.examcurrent', [
+            'get_exams' => $get_exams
         ]);
     }
+    // public function currentexamquesiton($id)
+    // {   
+    //     $student = Auth::guard('student')->user();
+    //     // Fetch quizzes related to the specified exam ID
+    //     $quizes = Quiz::where('exam_id', $id)->get();
+    //     // Fetch the exam name from the Exam model
+    //     $exam = Exam::find($id);
+    //     $exam_id = $id;
+    //     $examName = $exam ? $exam->exam_name : 'Unknown Exam';
+
+    //     return view('student.examcurrent.viewQuestionModal', compact('quizes', 'examName', 'exam_id'))->render();
+    // }
+    public function currentexamquesiton($id)
+    {
+        $student = Auth::guard('student')->user();
+        $exam_id = $id;
+
+        // Fetch quizzes related to the specified exam ID
+        $quizes = Quiz::where('exam_id', $exam_id)->get();
+
+        // Fetch the exam name from the Exam model
+        $exam = Exam::find($exam_id);
+        $examName = $exam ? $exam->exam_name : 'Unknown Exam';
+
+        // Check if the exam has been taken by this student
+        $examTaken = Score::where('exam_id', $exam_id)
+            ->where('student_id', $student->id)
+            ->exists();
+
+        // Fetch the student's previous answers
+        $previousAnswers = Result::where('exam_id', $exam_id)
+            ->where('student_id', $student->id)
+            ->pluck('selected_answer', 'question_id')
+            ->toArray();
+
+        return view('student.examcurrent.viewQuestionModal', compact('quizes', 'examName', 'exam_id', 'examTaken', 'previousAnswers'))->render();
+    }
+    // public function currentexam()
+    // {
+    //     $student = Auth::guard('student')->user();
+    //     $get_exams = Exam::where('class_id', $student->class_id)->get();
+    //     // $quizes = Quiz::where('exam_id', $get_exams->id)->latest()->get();
+    //     // Initialize an array to store quizzes
+    //     $quizzes = [];
+
+    //     // Iterate over each exam to fetch quizzes related to it
+    //     foreach ($get_exams as $exam) {
+    //         $quiz = Quiz::where('exam_id', $exam->id)->latest()->get();
+    //         // Append quizzes to the result array
+    //         foreach ($quiz as $q) {
+    //             $quizzes[] = $q;
+    //         }
+    //     }
+    //     // Check if results exist for the current student and exam
+    //     $results = Result::where('student_id', $student->id)
+    //         ->whereIn('exam_id', $get_exams->pluck('id'))
+    //         ->pluck('selected_answer', 'question_id')
+    //         ->toArray();
+    //     return view('student.currentexam.currentexam', [
+    //         'quizzes' => $quizzes,
+    //         'student_id' => $student->id,
+    //         'exam_id' => $exam->id,
+    //         'results' => $results,
+    //     ]);
+    // }
     public function classschedle()
     {
         $student = Auth::guard('student')->user();
@@ -110,27 +162,27 @@ class StudentHomeController extends Controller
 
     public function giveQuiz(Request $request)
     {
-        $resultsData = $request->input('results');
+        $student = Auth::guard('student')->user();
+        $resultsData = $request->answers;
+        $score = $request->score;
         $totalScore = 0;
-        foreach ($resultsData as $resultData) {
+        $exam_id = $request->examId;
+        foreach ($resultsData as $questionId => $selectedAnswer) {
             // Create a new Result instance
             $result = new Result();
-            $result->exam_id = $resultData['exam_id'];
-            $result->student_id = $resultData['student_id'];
-            $result->submission_datetime = Carbon::now(); // Current date time
-            // Calculate score based on 'isCorrect'
-            if ($resultData['isCorrect'] === 'true') {
-                $result->score = 1; // Assign 1 mark for correct answer
-                $totalScore += 1; // Increment total score
-            } else {
-                $result->score = 0; // Assign 0 marks for incorrect answer
-            }
-            $result->selected_answer = $resultData['selectedAnswer'];
-            $result->question_id = $resultData['questionId'];
-
-            // Save the result
+            $result->exam_id = $exam_id;
+            $result->student_id = $student->id;
+            $result->submission_datetime = Carbon::now();
+            $result->selected_answer = $selectedAnswer;
+            $result->question_id = $questionId;
             $result->save();
         }
+        // Save the total score to the 'scores' table
+        $scoreEntry = new Score();
+        $scoreEntry->exam_id = $exam_id;
+        $scoreEntry->student_id = $student->id;
+        $scoreEntry->score = $score;
+        $scoreEntry->save();
         return response()->json([
             'status' => true,
             'totalScore' => $totalScore,

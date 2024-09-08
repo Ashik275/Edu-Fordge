@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Classes;
 use App\Models\Exam;
+use App\Models\Materials;
 use App\Models\Quiz;
 use App\Models\Subjects;
 use Carbon\Carbon;
@@ -60,11 +61,12 @@ class ExamController extends Controller
                     'message' => 'An exam for the same class already exists on the selected date.'
                 ]);
             } else {
+                $exam_duration_in_minutes = $req->exam_duration;
                 $teacher = Auth::guard('teacher')->user();
                 $exam = new Exam();
                 $exam->class_id = $req->class_id;
                 $exam->subject_id = $req->subject_id;
-                $exam->exam_duration = $req->exam_duration;
+                $exam->exam_duration = $exam_duration_in_minutes * 60;
                 $exam->exam_name = $req->topic;
                 $exam->exam_date = $formattedStartTime;
                 $exam->teacher_id = $teacher->id;
@@ -80,6 +82,13 @@ class ExamController extends Controller
                 'errors' => $validator->errors()
             ]);
         }
+    }
+    public function getMaterials($subject_id)
+    {   
+        // Fetch materials based on the subject_id
+        $materials = Materials::where('subject_id', $subject_id)->get();
+
+        return response()->json($materials);
     }
     public function addQuestion($id)
     {

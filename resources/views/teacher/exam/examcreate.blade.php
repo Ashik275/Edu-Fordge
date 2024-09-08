@@ -76,7 +76,7 @@
                                     <td>{{ $exam->exam_date }}</td>
                                     <td>{{ $exam->subject->sub_name }}</td>
                                     <td>{{ $exam->class->class_name }}</td>
-                                    <td>{{ $exam->exam_duration }} Hour</td>
+                                    <td>{{ $exam->exam_duration/60 }} Minute</td>
                                     <td>
                                         <button class="btn btn-gradient-info btn-fw"
                                             onclick="addQuestions('{{ $exam->id }}')">Add

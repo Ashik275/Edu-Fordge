@@ -9,15 +9,6 @@
             <div class="modal-body">
                 <form class="forms-sample" id="addQuestion">
                     <div class="form-group">
-
-                        {{-- <div class="col-md-12">
-                            <label for="exampleIputName1">Number Of Qestion </label>
-                            <input type="text" class="form-control" name="num_of_question" id="num_of_question"
-                                onblur="generateQueston()">
-                            <input type="hidden" class="form-control" name="exan_id" id="exan_id">
-
-                        </div> --}}
-
                         @foreach($quizes as $quiz)
                         <div class="question">
                             <h3>{{ $quiz->question }}</h3>
@@ -33,7 +24,7 @@
 
                     </div>
                     {{-- <button type="button" class="btn btn-gradient-primary me-2" onclick="addQuiz()">Submit</button> --}}
-                    <button class="btn btn-light">Cancel</button>
+                    <button type="button" class="btn btn-light">Cancel</button>
                 </form>
             </div>
 

@@ -79,7 +79,8 @@ Route::group(['prefix' => 'student'], function () {
         Route::get('/student/classschedle', [StudentHomeController::class, 'classschedle'])->name('student.classschedle');
         Route::get('/student/classlecture', [StudentHomeController::class, 'classlecture'])->name('student.classlecture');
         Route::get('/student/joinclass', [StudentHomeController::class, 'joinclass'])->name('student.joinclass');
-        Route::get('/student/currentexam', [StudentHomeController::class, 'currentexam'])->name('student.currentexam');
+        Route::get('/currentexam', [StudentHomeController::class, 'currentexam'])->name('student.currentexam');
+        Route::get('/student/currentexamquesiton/{id}', [StudentHomeController::class, 'currentexamquesiton'])->name('student.currentexamquesiton');
     });
 });
 Route::group(['prefix' => 'teacher'], function () {
@@ -106,8 +107,13 @@ Route::group(['prefix' => 'teacher'], function () {
         Route::post('/quiz/add-quiz', [ExamController::class, 'createQuiz'])->name('quiz.quiz-add');
         Route::get('/exam/{id}', [ExamController::class, 'addQuestion'])->name('exam.add-quiz');
         Route::get('/exam-view/{id}', [ExamController::class, 'viewQuestion'])->name('exam.add-view');
+        Route::get('/get-materials/{subject_id}', [ExamController::class, 'getMaterials'])->name('quiz.quiz-materials');
+
         ## generate Exam 
         Route::get('/quiz/generate-quiz', [GenerateQuiz::class, 'generateExam'])->name('quiz.generate-quiz');
+        Route::get('/quiz/exam-result', [GenerateQuiz::class, 'examResult'])->name('quiz.exam-result');
+        Route::post('/quiz/upload-quiz', [GenerateQuiz::class, 'uploadQuiz'])->name('quiz.upload-quiz');
+        Route::get('/quiz/{id}', [GenerateQuiz::class, 'searchResult'])->name('quiz.quiz-searchdata');
 
         ## Zoom meeting create
         Route::get('/teacher/meeting/create', [ZoomMeetingController::class, 'create'])->name('teacher.meeting-create');

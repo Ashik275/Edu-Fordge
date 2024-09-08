@@ -9,7 +9,7 @@
                         <!--change to offline or busy as needed-->
                     </div>
                     <div class="nav-profile-text d-flex flex-column">
-                        <span class="font-weight-bold mb-2">David Grey. H</span>
+                        <span class="font-weight-bold mb-2">{{ auth()->user()->name }}</span>
                         {{-- <span class="text-secondary text-small">Project Manager</span> --}}
                     </div>
                     <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
@@ -86,8 +86,7 @@
                         <!--change to offline or busy as needed-->
                     </div>
                     <div class="nav-profile-text d-flex flex-column">
-                        <span class="font-weight-bold mb-2">David Grey. H</span>
-                        <span class="text-secondary text-small">Project Manager</span>
+                        <span class="font-weight-bold mb-2">{{ auth()->guard('teacher')->user()->name }}</span>
                     </div>
                     <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
                 </a>
@@ -116,6 +115,7 @@
                     <i class="mdi mdi-contacts menu-icon"></i>
                 </a>
             </li>
+            
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('exam.exam-create') }}">
                     <span class="menu-title">Exam</span>
@@ -125,6 +125,12 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('quiz.generate-quiz') }}">
                     <span class="menu-title">Generate Quiz</span>
+                    <i class="mdi mdi-contacts menu-icon"></i>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('quiz.exam-result') }}">
+                    <span class="menu-title">Exam Result</span>
                     <i class="mdi mdi-contacts menu-icon"></i>
                 </a>
             </li>
@@ -139,8 +145,7 @@
                         <!--change to offline or busy as needed-->
                     </div>
                     <div class="nav-profile-text d-flex flex-column">
-                        <span class="font-weight-bold mb-2">David Grey. H</span>
-                        <span class="text-secondary text-small">Project Manager</span>
+                        <span class="font-weight-bold mb-2">{{ auth()->guard('student')->user()->name }}</span>
                     </div>
                     <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
                 </a>
